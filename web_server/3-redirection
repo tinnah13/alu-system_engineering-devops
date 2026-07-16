@@ -1,32 +1,26 @@
 #!/usr/bin/env bash
-# Creating a server with a redirect
+# script that install nginx and configure it to redirect to another page when
+# accessing the /redirect_me page.
+sudo apt update -y
+sudo apt install nginx -y
 
-# Updating all packages
-sudo apt-get update -y && sudo apt-get upgrade -y
-
-# Install Nginx
-sudo apt-get install nginx -y
-
-# Creating an index page
-echo "Holberton School" | sudo tee /var/www/html/index.html
-
-# Write data to nginx.conf
-echo "
-events {
-
+sudo mkdir /etc/nginx/html
+sudo touch /etc/nginx/html/index.html
+# store configuration content
+new_config=\
+"server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+               root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+        location / {
+                try_files \$uri \$uri/ =404;
+        }
+        location /redirect_me { 
+            return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+        }
 }
-
-http {
-	server {
-		listen 80;
-
-		root /var/www/html;
-
-		location /redirect_me {
-			return 301 https://google.com;
-		}
-	}
-}" | sudo tee /etc/nginx/nginx.conf
-
-# Reload nginx
+"
+echo "$new_config" > /etc/nginx/sites-available/default
 sudo service nginx restart
