@@ -1,39 +1,20 @@
 #!/usr/bin/env bash
-# Installs and configures HAProxy on lb-01 to load balance
-# between web-01 and web-02 using round-robin
+# Installs and configures HAProxy to load balance between web-01 and web-02
+apt-get update -y
+apt-get install -y haproxy
 
-sudo apt-get update -y
-sudo apt-get install -y haproxy
-
-# Enable HAProxy init script management
-sudo sed -i 's/ENABLED=.*/ENABLED=1/' /etc/default/haproxy 2>/dev/null || echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
-
-haproxy_config="
-global
-    log /dev/log    local0
-    log /dev/log    local1 notice
-    daemon
-
-defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
-    timeout connect 5000
-    timeout client  50000
-    timeout server  50000
+cat >> /etc/haproxy/haproxy.cfg << 'EOF'
 
 frontend http_front
-    bind *:80
-    default_backend http_back
+	bind *:80
+	default_backend http_back
 
 backend http_back
-    balance roundrobin
-    server 7080-web-01 44.203.140.27:80 check
-    server 7080-web-02 3.90.3.141:80 check
-"
+	balance roundrobin
+	server 7087-web-01 3.88.53.117:80 check
+	server 7087-web-02 52.91.100.119:80 check
+EOF
 
-echo "$haproxy_config" | sudo tee /etc/haproxy/haproxy.cfg
+sed -i 's/^ENABLED=.*/ENABLED=1/' /etc/default/haproxy
 
-sudo systemctl enable haproxy
-sudo service haproxy restart
+service haproxy restart
