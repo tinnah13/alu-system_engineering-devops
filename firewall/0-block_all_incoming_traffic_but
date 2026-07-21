@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# Bash script that  installs the 'ufw' firewall.
+# Configures ufw to block all incoming traffic except SSH, HTTP, and HTTPS
+apt-get update -y
+apt-get install -y ufw
 
-apt-get install ufw
-sed -i 's/IPV6=.*/IPV6=yes/' /etc/default/ufw
-ufw disable
-ufw enable
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow 22/tcp
-ufw allow 443/tcp
-ufw allow 80/tcp
+
+ufw --force enable
