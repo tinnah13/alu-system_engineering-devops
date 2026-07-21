@@ -1,27 +1,29 @@
 #!/usr/bin/env bash
-# Configure nginx to redirect /redirect_me
+# Installs nginx and configures a 301 redirect for /redirect_me
+apt-get update -y
+apt-get install -y nginx
 
-apt-get -y update
-apt-get -y install nginx
+echo "Holberton School" > /var/www/html/index.nginx-debian.html
 
-cat > /etc/nginx/sites-available/default <<'EOF'
+cat > /etc/nginx/sites-available/default << 'EOF'
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
+	listen 80 default_server;
+	listen [::]:80 default_server;
 
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
 
-    server_name _;
+	server_name _;
 
-    location / {
-        try_files $uri $uri/ =404;
-    }
+	location / {
+		try_files $uri $uri/ =404;
+	}
 
-    location = /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
+	location /redirect_me {
+		return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+	}
 }
 EOF
 
+service nginx start
 service nginx reload
